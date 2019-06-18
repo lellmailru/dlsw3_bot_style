@@ -21,7 +21,10 @@ def send_prediction_on_photo(bot, update):
 
     # получаем информацию о картинке
     image_info = update.message.photo[-1]
-    image_file = bot.get_file(image_info)
+    try:
+        image_file = bot.get_file(image_info)
+    except Exception as exception:
+        print(exception.__str__())
 
     if chat_id in first_image_file:
 
@@ -32,7 +35,6 @@ def send_prediction_on_photo(bot, update):
 
         style_image_stream = BytesIO()
         image_file.download(out=style_image_stream)
-
         output = model.transfer_style(content_image_stream, style_image_stream)
 
         # теперь отправим назад фото
@@ -56,7 +58,10 @@ if __name__ == '__main__':
     # используем прокси, так как без него у меня ничего не работало.
     # если есть проблемы с подключением, то попробуйте убрать прокси или сменить на другой
     # проекси ищется в гугле как "socks4 proxy"
-    updater = Updater(token=token,  request_kwargs={'proxy_url': 'socks4://168.195.171.42:44880'})
+    #updater = Updater(token=token, request_kwargs={'proxy_url': 'socks4://168.195.171.42:44880'})
+    updater = Updater(token=token, request_kwargs={'proxy_url': 'socks4://192.169.216.124:8800'})
+    #updater = Updater(token=token, request_kwargs={'proxy_url': 'http://nl-84-91-2.friproxy.biz:443'})
+    #updater = Updater(token=token)
 
     # В реализации большого бота скорее всего будет удобнее использовать Conversation Handler
     # вместо назначения handler'ов таким способом
