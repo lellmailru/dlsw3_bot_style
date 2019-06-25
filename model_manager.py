@@ -4,6 +4,9 @@ import torchvision.transforms as transforms
 from scipy import misc
 
 from simple_model import SimpleStyleTransferModel
+from config import GD_SYMPLE_STYLE
+
+import fast_neural_style.neural_style as neural_style
 
 
 # В данном классе мы хотим полностью производить всю обработку картинок, которые поступают к нам из телеграма.
@@ -28,7 +31,7 @@ class StyleTransferManager:
         content_img = self.load_image(content_img_stream)
         style_img = self.load_image(style_img_stream)
         model = SimpleStyleTransferModel()
-        output_img = model.process_image(content_img, style_img, 500)
+        output_img = model.process_image(content_img, style_img, GD_SYMPLE_STYLE.get('num_steps'))
 
         output_img = misc.toimage(output_img[0])
         return output_img
@@ -38,10 +41,28 @@ class StyleTransferManager:
         content_img = self.load_image(content_img_path)
         style_img = self.load_image(style_img_path)
         model = SimpleStyleTransferModel()
-        output_img = model.process_image(content_img, style_img, 500)
+        output_img = model.process_image(content_img, style_img, GD_SYMPLE_STYLE.get('num_steps'))
 
         output_img = misc.toimage(output_img[0])
         output_img.save(output_image_path)
+
+    def test_fast_transfer_style(self,  content_img_path, style_name, output_image_path):
+        # Этот метод для тестирования процедуры запуска предобученной модели fast_neural_style
+        content_img = self.load_image(content_img_path)
+
+        output_img = neural_style.stylize(content_img, style_name)
+
+        output_img = misc.toimage(output_img[0])
+        output_img.save(output_image_path)
+
+    def fast_transfer_style(self,  content_img_path, style_name):
+        # Этот метод запускает предобученную модель fast_neural_style
+        content_img = self.load_image(content_img_path)
+
+        output_img = neural_style.stylize(content_img, style_name)
+
+        output_img = misc.toimage(output_img[0])
+        return output_img
 
     def load_image(self, img_stream):
         image = Image.open(img_stream)
@@ -65,9 +86,14 @@ class StyleTransferManager:
         image = loader(image).unsqueeze(0)
         return image.to(self.device, torch.float)
 
-#if __name__ == '__main__':
-#    model = StyleTransferManager()
+# if __name__ == '__main__':
+#    model_manager = StyleTransferManager()
 #    content_image_path = 'Z:\\_DEVELOP\\_PYTHON\\dlsw3_bot_style\\images\\content-images\\loshad.jpg'
 #    style_image_path = 'Z:\\_DEVELOP\\_PYTHON\\dlsw3_bot_style\\images\\style-images\\candy.jpg'
 #    output_image_path = 'Z:\\_DEVELOP\\_PYTHON\\dlsw3_bot_style\\images\\output-images\\loshad.jpg'
-#    output = model.test_simple_transfer_style(content_image_path, style_image_path, output_image_path)
+#    output = model_manager.test_simple_transfer_style(content_image_path, style_image_path, output_image_path)
+
+    # content_image_path = 'Z:\\_DEVELOP\\_PYTHON\\dlsw3_bot_style\\images\\content-images\\loshad.jpg'
+    # output_image_path = 'Z:\\_DEVELOP\\_PYTHON\\dlsw3_bot_style\\images\\output-images\\loshad.jpg'
+    # model_manager = StyleTransferManager()
+    # output = model_manager.test_fast_transfer_style(content_image_path, style_name="candy", output_image_path=output_image_path)
