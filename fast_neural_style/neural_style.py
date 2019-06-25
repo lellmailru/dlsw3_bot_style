@@ -1,10 +1,8 @@
 import os
 import re
 import torch
-from torchvision import transforms
 import torch.onnx
 
-import fast_neural_style.utils as utils
 from fast_neural_style.transformer_net import TransformerNet
 
 
